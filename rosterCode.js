@@ -1,5 +1,17 @@
+const express = require('express');
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+
+const app = express();
+// needs to be different port than the port that MySQL is running on, right?
+const PORT = process.env.PORT || 3000;
+
+// cute little thing we learned in one of Pat's mini clinics
+const log = (message) => console.log(message)
+
+app.listen(PORT, () =>{
+    log('This server is up and running!')
+})
 
 var connection = mysql.createConnection({
   host: "localhost",
