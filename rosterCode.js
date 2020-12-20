@@ -248,13 +248,48 @@ function addRole() {
         });
 }
 
-//   function updateEmployeeRole() {
-//     inquirer
-//       .prompt({
-//         name: "artist",
-//         type: "input",
-//         message: "What artist would you like to search for?"
-//       })
-//       .then(function(answer) {
-//         var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
-//         query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
+function updateEmployeeRole(answer) {
+  connection.query("SELECT * FROM employees", function(err, results) {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "updateEmployeeRole",
+          type: "rawlist",
+          // iterate through entire employee table and generate a list of choices based on what's in there
+          choices: function() {
+            var employeeArray = [];
+            for (var i = 0; i < results.length; i++) {
+              employeeArray.push(results[i].item_name);
+            }
+            return employeeArray;
+            },
+            message: "Which employee's role would you like to update?"
+        },
+        // do I need to run a delete/update query here (or after the inquirer prompts)?
+        {
+            name: "newRole",
+            type: "rawlist",
+            choices: function() {
+            // iterate through entire role table and generate a list of choices based on what's in there
+            // should I name this choiceArray something different?
+                var roleArray = [];
+                for (var i = 0; i < results.length; i++) {
+                  roleArray.push(results[i].item_name);
+                }
+                return roleArray;
+            },
+            message: "What would you like their new role to be?"
+        },
+    ])
+    .then (function(answer) {
+        var chosenItem;
+        for (var i = 0; i < results.length; i++) {
+          if (results[i].item_name === answer.choice) {
+            chosenItem = results[i];
+          }
+        }
+
+    }
+})
+}
