@@ -24,7 +24,7 @@ const connection = mysql.createConnection({
   user: "root",
   // Your password
   // I tried to change it. make sure that worked
-  password: "root",
+  password: process.env.PASSWORD,
   database: "companyRoster_db"
 });
 
@@ -42,7 +42,7 @@ function runSearch() {
         message: "What would you like to do?",
         choices: [
           "View all employees",
-          "View all employees by department",
+          "View all employees by departments",
           "View all employees by role",
         // BONUS "View all employees by manager",
           "Add employee",
@@ -63,11 +63,11 @@ function runSearch() {
           break;
   
         case "View all employees by department":
-          viewEmployeeDept();
+          viewDepartment();
           break;
 
         case "View all employees by role":
-            viewEmployeeRole();
+            viewRole();
             break;
   
         // BONUS case "View all employees by manager":
@@ -103,24 +103,28 @@ function runSearch() {
         });
   }
 
-//   function viewEmployeeDept() {
-//     inquirer
-//     .prompt({
-//       name: "employeeDept",
-//       type: "input",
-//       message: "What department would you like to search for?"
-//     })
-//     .then(function(answer) {
-//       var query = "SELECT id, name FROM department WHERE ?";
-//       connection.query(query, { employeeDept: answer.employeeDept }, function(err, res) {
-//         for (var i = 0; i < res.length; i++) {
-//         // how do i include code for role id and manager id? see README
-//           console.log("id: " + res[i].id + " || name: " + res[i].name);
-//         }
-//         runSearch();
-//       });
-//     });
-//   }
+  // might need to do an outer join for all tables
+  //WAIT refer to activity 8 to view employees for each department
+
+  function viewDepartment() {
+    var query = "SELECT * FROM department";
+    connection.query(query, function(err, result) {
+        if (err) log(err);
+        for (var i = 0; i < res.length; i++) {
+            console.log(console.table(res[i].id + " | " + res[i].title + " | " + res[i].artist + " | " + res[i].genre));
+          }
+        runSearch();
+        });
+  }
+
+  function viewRole() {
+    var query = "SELECT * FROM role_";
+    connection.query(query, function(err, result) {
+        if (err) log(err);
+        console.log(console.table(result));
+        runSearch();
+        });
+  }
 
 //   function viewEmployeeRole() {
 //     inquirer

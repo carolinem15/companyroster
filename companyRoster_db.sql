@@ -28,6 +28,8 @@ CREATE TABLE employee (
 
 INSERT INTO employees (id, first_name, last_name)
 VALUES (1, "Caroline", "Manson"), (2, "Cameron", "Pyle");
+INSERT INTO role_ (id, title, salary)
+VALUES (1, "Systems Architect", 1000000.0), (2, "Senior Developer", 1000000.0);
 
 SELECT * FROM department;
 SELECT * FROM role_;
