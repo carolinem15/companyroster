@@ -182,7 +182,7 @@ function addEmployee() {
             );
         });
 }
-
+// build department, then role
 function addDepartment() {
     inquirer
         .prompt([{
@@ -219,6 +219,7 @@ function addRole() {
                 type: "number",
                 message: "What is the new role's salary?"
             },
+            // do a query before, get all the departments, and build choices as an array (where every object has a key (department) and a value(id))
             {
                 name: "roleDepartment",
                 type: "rawlist",
