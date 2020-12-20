@@ -1,6 +1,7 @@
 const express = require('express');
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const cTable = require('console.table');
 
 const app = express();
 // needs to be different port than the port that MySQL is running on, right?
@@ -9,26 +10,27 @@ const PORT = process.env.PORT || 3000;
 // cute little thing we learned in one of Pat's mini clinics
 const log = (message) => console.log(message)
 
+// app.get('/', (req, res) => res.send('Hello UNCC Bootcamp'))
+
 app.listen(PORT, () =>{
     log('This server is up and running!')
 })
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
-
   // Your port; if not 3306
   port: 3306,
-
   // Your username
   user: "root",
-
   // Your password
-  password: "",
+  // I tried to change it. make sure that worked
+  password: "root",
   database: "companyRoster_db"
 });
 
 connection.connect(function(err) {
   if (err) throw err;
+  log(`Connection thread is ${connection.threadId}`)
   runSearch();
 });
 
@@ -92,226 +94,220 @@ function runSearch() {
   }
   
   function viewEmployees() {
-    inquirer
-      .prompt({
-        name: "employee",
-        type: "input",
-        message: "What employee would you like to search for?"
-      })
-      .then(function(answer) {
-        var query = "SELECT id, first_name, last_name FROM employee WHERE ?";
-        connection.query(query, { employee: answer.employee }, function(err, res) {
-          for (var i = 0; i < res.length; i++) {
-            console.log("id: " + res[i].id + " || first_name: " + res[i].first_name + " || last_name: " + res[i].last_name);
-          }
-          runSearch();
-        });
-      });
-  }
-  
-  function viewEmployeeDept() {
-    inquirer
-    .prompt({
-      name: "employeeDept",
-      type: "input",
-      message: "What department would you like to search for?"
-    })
-    .then(function(answer) {
-      var query = "SELECT id, name FROM department WHERE ?";
-      connection.query(query, { employeeDept: answer.employeeDept }, function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-        // how do i include code for role id and manager id? see README
-          console.log("id: " + res[i].id + " || name: " + res[i].name);
-        }
+    var query = "SELECT * FROM employee";
+    // what does { employee: answer.employee } do?
+    connection.query(query, function(err, result) {
+        if (err) log(err);
+        console.log(console.table(result));
         runSearch();
-      });
-    });
+        });
   }
 
-  function viewEmployeeRole() {
-    inquirer
-    .prompt({
-      name: "employeeRole",
-      type: "input",
-      message: "What roles would you like to search for?"
-    })
-    .then(function(answer) {
-      var query = "SELECT id, title, salary FROM role_ WHERE ?";
-      connection.query(query, { employeeRole: answer.employeeRole }, function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-            // how do i include code for department id? see README
-          console.log("id: " + res[i].id + " || title: " + res[i].title + " || salary: " + res[i].salary);
-        }
-        runSearch();
-      });
-    });
-  }
+//   function viewEmployeeDept() {
+//     inquirer
+//     .prompt({
+//       name: "employeeDept",
+//       type: "input",
+//       message: "What department would you like to search for?"
+//     })
+//     .then(function(answer) {
+//       var query = "SELECT id, name FROM department WHERE ?";
+//       connection.query(query, { employeeDept: answer.employeeDept }, function(err, res) {
+//         for (var i = 0; i < res.length; i++) {
+//         // how do i include code for role id and manager id? see README
+//           console.log("id: " + res[i].id + " || name: " + res[i].name);
+//         }
+//         runSearch();
+//       });
+//     });
+//   }
+
+//   function viewEmployeeRole() {
+//     inquirer
+//     .prompt({
+//       name: "employeeRole",
+//       type: "input",
+//       message: "What roles would you like to search for?"
+//     })
+//     .then(function(answer) {
+//       var query = "SELECT id, title, salary FROM role_ WHERE ?";
+//       connection.query(query, { employeeRole: answer.employeeRole }, function(err, res) {
+//         for (var i = 0; i < res.length; i++) {
+//             // how do i include code for department id? see README
+//           console.log("id: " + res[i].id + " || title: " + res[i].title + " || salary: " + res[i].salary);
+//         }
+//         runSearch();
+//       });
+//     });
+//   }
   
-//  THIS FUNCTION NEEDS TO BE AN ADD 
+// //  THIS FUNCTION NEEDS TO BE AN ADD 
 function addEmployee() {
     inquirer
       .prompt({
-        name: "song",
+        name: "firstName",
         type: "input",
-        message: "What song would you like to look for?"
-      })
+        message: "What is the employee's first name?"
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is the employee's last name?"
+      },
+      {
+        name: "role",
+        type: "input",
+        message: "What is the employee's role?"
+      },
+      )
       .then(function(answer) {
         console.log(answer.song);
-        connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-          console.log(
-            "Position: " +
-              res[0].position +
-              " || Song: " +
-              res[0].song +
-              " || Artist: " +
-              res[0].artist +
-              " || Year: " +
-              res[0].year
-          );
+        connection.query("SELECT * FROM WHERE ", function(err, res) {
+          console.log(console.table());
           runSearch();
         });
       });
   }
 
-  //  THIS FUNCTION NEEDS TO BE AN ADD 
-function addDepartment() {
-    inquirer
-      .prompt({
-        name: "song",
-        type: "input",
-        message: "What song would you like to look for?"
-      })
-      .then(function(answer) {
-        console.log(answer.song);
-        connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-          console.log(
-            "Position: " +
-              res[0].position +
-              " || Song: " +
-              res[0].song +
-              " || Artist: " +
-              res[0].artist +
-              " || Year: " +
-              res[0].year
-          );
-          runSearch();
-        });
-      });
-  }
-
-  //  THIS FUNCTION NEEDS TO BE AN ADD 
-function addRole() {
-    inquirer
-      .prompt({
-        name: "song",
-        type: "input",
-        message: "What song would you like to look for?"
-      })
-      .then(function(answer) {
-        console.log(answer.song);
-        connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-          console.log(
-            "Position: " +
-              res[0].position +
-              " || Song: " +
-              res[0].song +
-              " || Artist: " +
-              res[0].artist +
-              " || Year: " +
-              res[0].year
-          );
-          runSearch();
-        });
-      });
-  }
-  
-  function updateEmployeeRole() {
-    inquirer
-      .prompt({
-        name: "artist",
-        type: "input",
-        message: "What artist would you like to search for?"
-      })
-      .then(function(answer) {
-        var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
-        query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
-        query += "= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position";
-  
-        connection.query(query, [answer.artist, answer.artist], function(err, res) {
-          console.log(res.length + " matches found!");
-          for (var i = 0; i < res.length; i++) {
-            console.log(
-              i+1 + ".) " +
-                "Year: " +
-                res[i].year +
-                " Album Position: " +
-                res[i].position +
-                " || Artist: " +
-                res[i].artist +
-                " || Song: " +
-                res[i].song +
-                " || Album: " +
-                res[i].album
-            );
-          }
-  
-          runSearch();
-        });
-      });
-  }
-
-//   function rangeSearch() {
+//   //  THIS FUNCTION NEEDS TO BE AN ADD 
+// function addDepartment() {
 //     inquirer
-//       .prompt([
-//         {
-//           name: "start",
-//           type: "input",
-//           message: "Enter starting position: ",
-//           validate: function(value) {
-//             if (isNaN(value) === false) {
-//               return true;
-//             }
-//             return false;
-//           }
-//         },
-//         {
-//           name: "end",
-//           type: "input",
-//           message: "Enter ending position: ",
-//           validate: function(value) {
-//             if (isNaN(value) === false) {
-//               return true;
-//             }
-//             return false;
-//           }
-//         }
-//       ])
+//       .prompt({
+//         name: "song",
+//         type: "input",
+//         message: "What song would you like to look for?"
+//       })
 //       .then(function(answer) {
-//         var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
-//         connection.query(query, [answer.start, answer.end], function(err, res) {
-//           for (var i = 0; i < res.length; i++) {
-//             console.log(
-//               "Position: " +
-//                 res[i].position +
-//                 " || Song: " +
-//                 res[i].song +
-//                 " || Artist: " +
-//                 res[i].artist +
-//                 " || Year: " +
-//                 res[i].year
-//             );
-//           }
+//         console.log(answer.song);
+//         connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
+//           console.log(
+//             "Position: " +
+//               res[0].position +
+//               " || Song: " +
+//               res[0].song +
+//               " || Artist: " +
+//               res[0].artist +
+//               " || Year: " +
+//               res[0].year
+//           );
+//           runSearch();
+//         });
+//       });
+//   }
+
+//   //  THIS FUNCTION NEEDS TO BE AN ADD 
+// function addRole() {
+//     inquirer
+//       .prompt({
+//         name: "song",
+//         type: "input",
+//         message: "What song would you like to look for?"
+//       })
+//       .then(function(answer) {
+//         console.log(answer.song);
+//         connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
+//           console.log(
+//             "Position: " +
+//               res[0].position +
+//               " || Song: " +
+//               res[0].song +
+//               " || Artist: " +
+//               res[0].artist +
+//               " || Year: " +
+//               res[0].year
+//           );
 //           runSearch();
 //         });
 //       });
 //   }
   
+//   function updateEmployeeRole() {
+//     inquirer
+//       .prompt({
+//         name: "artist",
+//         type: "input",
+//         message: "What artist would you like to search for?"
+//       })
+//       .then(function(answer) {
+//         var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
+//         query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
+//         query += "= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position";
+  
+//         connection.query(query, [answer.artist, answer.artist], function(err, res) {
+//           console.log(res.length + " matches found!");
+//           for (var i = 0; i < res.length; i++) {
+//             console.log(
+//               i+1 + ".) " +
+//                 "Year: " +
+//                 res[i].year +
+//                 " Album Position: " +
+//                 res[i].position +
+//                 " || Artist: " +
+//                 res[i].artist +
+//                 " || Song: " +
+//                 res[i].song +
+//                 " || Album: " +
+//                 res[i].album
+//             );
+//           }
+  
+//           runSearch();
+//         });
+//       });
+//   }
+
+// //   function rangeSearch() {
+// //     inquirer
+// //       .prompt([
+// //         {
+// //           name: "start",
+// //           type: "input",
+// //           message: "Enter starting position: ",
+// //           validate: function(value) {
+// //             if (isNaN(value) === false) {
+// //               return true;
+// //             }
+// //             return false;
+// //           }
+// //         },
+// //         {
+// //           name: "end",
+// //           type: "input",
+// //           message: "Enter ending position: ",
+// //           validate: function(value) {
+// //             if (isNaN(value) === false) {
+// //               return true;
+// //             }
+// //             return false;
+// //           }
+// //         }
+// //       ])
+// //       .then(function(answer) {
+// //         var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
+// //         connection.query(query, [answer.start, answer.end], function(err, res) {
+// //           for (var i = 0; i < res.length; i++) {
+// //             console.log(
+// //               "Position: " +
+// //                 res[i].position +
+// //                 " || Song: " +
+// //                 res[i].song +
+// //                 " || Artist: " +
+// //                 res[i].artist +
+// //                 " || Year: " +
+// //                 res[i].year
+// //             );
+// //           }
+// //           runSearch();
+// //         });
+// //       });
+// //   }
+  
 
 
-// var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-//     connection.query(query, function(err, res) {
-//       for (var i = 0; i < res.length; i++) {
-//         console.log(res[i].artist);
-//       }
-//       runSearch();
-//     });
+// // var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
+// //     connection.query(query, function(err, res) {
+// //       for (var i = 0; i < res.length; i++) {
+// //         console.log(res[i].artist);
+// //       }
+// //       runSearch();
+// //     });
