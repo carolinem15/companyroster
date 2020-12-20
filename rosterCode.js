@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express');
 const mysql = require("mysql");
 const inquirer = require("inquirer");
@@ -12,219 +14,240 @@ const log = (message) => console.log(message)
 
 // app.get('/', (req, res) => res.send('Hello UNCC Bootcamp'))
 
-app.listen(PORT, () =>{
+app.listen(PORT, () => {
     log('This server is up and running!')
 })
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  // Your port; if not 3306
-  port: 3306,
-  // Your username
-  user: "root",
-  // Your password
-  // I tried to change it. make sure that worked
-  password: process.env.PASSWORD,
-  database: "companyRoster_db"
+    host: "localhost",
+    // Your port; if not 3306
+    port: 3306,
+    // Your username
+    user: "root",
+    // Your password
+    // I tried to change it. make sure that worked
+    //   password: process.env.PASSWORD,
+    password: 'root',
+    database: "companyRoster_db"
 });
 
-connection.connect(function(err) {
-  if (err) throw err;
-  log(`Connection thread is ${connection.threadId}`)
-  runSearch();
+connection.connect(function (err) {
+    if (err) throw err;
+    log(`Connection thread is ${connection.threadId}`)
+    runSearch();
 });
 
 function runSearch() {
     inquirer
-      .prompt({
-        name: "action",
-        type: "rawlist",
-        message: "What would you like to do?",
-        choices: [
-          "View all employees",
-          "View all employees by departments",
-          "View all employees by role",
-        // BONUS "View all employees by manager",
-          "Add employee",
-          "Add department",
-          "Add role",
-        // BONUS "Remove employee",
-        // BONUS "Remove department",
-        // BONUS "Remove role",
-          "Update employee role",
-        //  BONUS "Update employee manager",
-        // BONUS "View total utilized budget of a department"
-        ]
-      })
-      .then(function(answer) {
-        switch (answer.action) {
-        case "View all employees":
-          viewEmployees();
-          break;
-  
-        case "View all employees by department":
-          viewDepartment();
-          break;
+        .prompt({
+            name: "action",
+            type: "rawlist",
+            message: "What would you like to do?",
+            choices: [
+                "View all employees",
+                "View all employees by departments",
+                "View all employees by role",
+                // BONUS "View all employees by manager",
+                "Add employee",
+                "Add department",
+                "Add role",
+                // BONUS "Remove employee",
+                // BONUS "Remove department",
+                // BONUS "Remove role",
+                "Update employee role",
+                //  BONUS "Update employee manager",
+                // BONUS "View total utilized budget of a department"
+            ]
+        })
+        .then(function (answer) {
+            switch (answer.action) {
+                case "View all employees":
+                    viewEmployees();
+                    break;
 
-        case "View all employees by role":
-            viewRole();
-            break;
-  
-        // BONUS case "View all employees by manager":
-        //   rangeSearch();
-        //   break;
-  
-        case "Add employee":
-          addEmployee();
-          break;
+                case "View all employees by department":
+                    viewDepartment();
+                    break;
 
-        case "Add department":
-          addDepartment();
-          break;
+                case "View all employees by role":
+                    viewRole();
+                    break;
 
-        case "Add role":
-          addRole();
-          break;
-  
-        case "Update employee role":
-          updateEmployeeRole();
-          break;
-        }
-      });
-  }
-  
-  function viewEmployees() {
+                    // BONUS case "View all employees by manager":
+                    //   rangeSearch();
+                    //   break;
+
+                case "Add employee":
+                    addEmployee();
+                    break;
+
+                case "Add department":
+                    addDepartment();
+                    break;
+
+                case "Add role":
+                    addRole();
+                    break;
+
+                case "Update employee role":
+                    updateEmployeeRole();
+                    break;
+            }
+        });
+}
+
+function viewEmployees() {
     var query = "SELECT * FROM employee";
     // what does { employee: answer.employee } do?
-    connection.query(query, function(err, result) {
+    connection.query(query, function (err, result) {
         if (err) log(err);
         console.log(console.table(result));
         runSearch();
-        });
-  }
+    });
+}
 
-  // might need to do an outer join for all tables
-  //WAIT refer to activity 8 to view employees for each department
+// might need to do an outer join for all tables
+// WAIT refer to activity 8 to view employees for each department
+// hmm but do they want us to do an inner join for the department and role tables? the only column they have in common is 
+// department id
 
-  function viewDepartment() {
+function viewDepartment() {
     var query = "SELECT * FROM department";
-    connection.query(query, function(err, result) {
-        if (err) log(err);
-        for (var i = 0; i < res.length; i++) {
-            console.log(console.table(res[i].id + " | " + res[i].title + " | " + res[i].artist + " | " + res[i].genre));
-          }
-        runSearch();
-        });
-  }
-
-  function viewRole() {
-    var query = "SELECT * FROM role_";
-    connection.query(query, function(err, result) {
+    connection.query(query, function (err, result) {
         if (err) log(err);
         console.log(console.table(result));
         runSearch();
-        });
-  }
+    });
+}
 
-//   function viewEmployeeRole() {
-//     inquirer
-//     .prompt({
-//       name: "employeeRole",
-//       type: "input",
-//       message: "What roles would you like to search for?"
-//     })
-//     .then(function(answer) {
-//       var query = "SELECT id, title, salary FROM role_ WHERE ?";
-//       connection.query(query, { employeeRole: answer.employeeRole }, function(err, res) {
-//         for (var i = 0; i < res.length; i++) {
-//             // how do i include code for department id? see README
-//           console.log("id: " + res[i].id + " || title: " + res[i].title + " || salary: " + res[i].salary);
-//         }
-//         runSearch();
-//       });
-//     });
-//   }
-  
-// //  THIS FUNCTION NEEDS TO BE AN ADD 
+// same stuff as viewDepartment
+
+function viewRole() {
+    var query = "SELECT * FROM role_";
+    connection.query(query, function (err, result) {
+        if (err) log(err);
+        console.log(console.table(result));
+        runSearch();
+    });
+}
+
+// this is not actually how I would need to code it for the assignment. Ill need inquirer prompts asking the employee's
+// first name, last name, and maybe role? then figure out how to insert that into my query
 function addEmployee() {
     inquirer
-      .prompt({
-        name: "firstName",
-        type: "input",
-        message: "What is the employee's first name?"
-      },
-      {
-        name: "lastName",
-        type: "input",
-        message: "What is the employee's last name?"
-      },
-      {
-        name: "role",
-        type: "input",
-        message: "What is the employee's role?"
-      },
-      )
-      .then(function(answer) {
-        console.log(answer.song);
-        connection.query("SELECT * FROM WHERE ", function(err, res) {
-          console.log(console.table());
-          runSearch();
+        .prompt([{
+                name: "firstName",
+                type: "input",
+                message: "What is the new employee's first name?"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What is the new employee's last name?"
+            },
+            // do I need to ask their role? probably
+            {
+                name: "employeeRole",
+                type: "rawlist",
+                message: "What is the new employee's role?",
+                choices: [
+                    "Sales Lead",
+                    "Salesperson",
+                    "Lead Engineer",
+                    "Software Engineer",
+                    "Accountant",
+                    "Legal Team Lead",
+                    "Lawyer"
+                ]
+            },
+        ])
+        .then(function (answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO employees SET ?", {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    // do I need to create some reference to unique role ids here after the new employee has been assigned
+                    // a role from the rawlist? OR, do I execute some sort of inner JOIN of tables based on the answer?
+                    role_id: answer.employeeRole
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Your employee was created successfully!");
+                    runSearch();
+                }
+            );
         });
-      });
-  }
+}
 
-//   //  THIS FUNCTION NEEDS TO BE AN ADD 
-// function addDepartment() {
-//     inquirer
-//       .prompt({
-//         name: "song",
-//         type: "input",
-//         message: "What song would you like to look for?"
-//       })
-//       .then(function(answer) {
-//         console.log(answer.song);
-//         connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-//           console.log(
-//             "Position: " +
-//               res[0].position +
-//               " || Song: " +
-//               res[0].song +
-//               " || Artist: " +
-//               res[0].artist +
-//               " || Year: " +
-//               res[0].year
-//           );
-//           runSearch();
-//         });
-//       });
-//   }
+function addDepartment() {
+    inquirer
+        .prompt([{
+                name: "departmentName",
+                type: "input",
+                message: "What is the new department's name?"
+            },
+        ])
+        .then(function (answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO department SET ?", {
+                    name: answer.departmentName,
+                    // then I THINK it just assigns the department a unique id automatically
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Your department was created successfully!");
+                    runSearch();
+                }
+            );
+        });
+}
 
-//   //  THIS FUNCTION NEEDS TO BE AN ADD 
-// function addRole() {
-//     inquirer
-//       .prompt({
-//         name: "song",
-//         type: "input",
-//         message: "What song would you like to look for?"
-//       })
-//       .then(function(answer) {
-//         console.log(answer.song);
-//         connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-//           console.log(
-//             "Position: " +
-//               res[0].position +
-//               " || Song: " +
-//               res[0].song +
-//               " || Artist: " +
-//               res[0].artist +
-//               " || Year: " +
-//               res[0].year
-//           );
-//           runSearch();
-//         });
-//       });
-//   }
-  
+function addRole() {
+    inquirer
+        .prompt([{
+                name: "roleTitle",
+                type: "input",
+                message: "What is the new role's title?"
+            },
+            {
+                name: "roleSalary",
+                type: "number",
+                message: "What is the new role's salary?"
+            },
+            // do I need to ask their role? probably
+            {
+                name: "roleDepartment",
+                type: "rawlist",
+                message: "What is the new role's department?",
+                choices: [
+                    "Sales",
+                    "Legal",
+                    "Engineering",
+                    "Finance"
+                ]
+            },
+        ])
+        .then(function (answer) {
+            // when finished prompting, insert a new item into the db with that info
+            connection.query(
+                "INSERT INTO role_ SET ?", {
+                    title: answer.roleTitle,
+                    salary: answer.roleSalary,
+                    // do I need to create some reference to unique role ids here after the new employee has been assigned
+                    // a role from the rawlist? OR, do I execute some sort of inner JOIN of tables based on the answer?
+                    department_id: answer.roleDepartment
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Your role was created successfully!");
+                    runSearch();
+                }
+            );
+        });
+}
+
 //   function updateEmployeeRole() {
 //     inquirer
 //       .prompt({
@@ -235,83 +258,3 @@ function addEmployee() {
 //       .then(function(answer) {
 //         var query = "SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ";
 //         query += "FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ";
-//         query += "= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position";
-  
-//         connection.query(query, [answer.artist, answer.artist], function(err, res) {
-//           console.log(res.length + " matches found!");
-//           for (var i = 0; i < res.length; i++) {
-//             console.log(
-//               i+1 + ".) " +
-//                 "Year: " +
-//                 res[i].year +
-//                 " Album Position: " +
-//                 res[i].position +
-//                 " || Artist: " +
-//                 res[i].artist +
-//                 " || Song: " +
-//                 res[i].song +
-//                 " || Album: " +
-//                 res[i].album
-//             );
-//           }
-  
-//           runSearch();
-//         });
-//       });
-//   }
-
-// //   function rangeSearch() {
-// //     inquirer
-// //       .prompt([
-// //         {
-// //           name: "start",
-// //           type: "input",
-// //           message: "Enter starting position: ",
-// //           validate: function(value) {
-// //             if (isNaN(value) === false) {
-// //               return true;
-// //             }
-// //             return false;
-// //           }
-// //         },
-// //         {
-// //           name: "end",
-// //           type: "input",
-// //           message: "Enter ending position: ",
-// //           validate: function(value) {
-// //             if (isNaN(value) === false) {
-// //               return true;
-// //             }
-// //             return false;
-// //           }
-// //         }
-// //       ])
-// //       .then(function(answer) {
-// //         var query = "SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?";
-// //         connection.query(query, [answer.start, answer.end], function(err, res) {
-// //           for (var i = 0; i < res.length; i++) {
-// //             console.log(
-// //               "Position: " +
-// //                 res[i].position +
-// //                 " || Song: " +
-// //                 res[i].song +
-// //                 " || Artist: " +
-// //                 res[i].artist +
-// //                 " || Year: " +
-// //                 res[i].year
-// //             );
-// //           }
-// //           runSearch();
-// //         });
-// //       });
-// //   }
-  
-
-
-// // var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-// //     connection.query(query, function(err, res) {
-// //       for (var i = 0; i < res.length; i++) {
-// //         console.log(res[i].artist);
-// //       }
-// //       runSearch();
-// //     });
