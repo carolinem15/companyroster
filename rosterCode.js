@@ -6,13 +6,10 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 
 const app = express();
-// needs to be different port than the port that MySQL is running on, right?
 const PORT = process.env.PORT || 3000;
 
 // cute little thing we learned in one of Pat's mini clinics
 const log = (message) => console.log(message)
-
-// app.get('/', (req, res) => res.send('Hello UNCC Bootcamp'))
 
 app.listen(PORT, () => {
     log('This server is up and running!')
@@ -25,8 +22,6 @@ const connection = mysql.createConnection({
     // Your username
     user: "root",
     // Your password
-    // I tried to change it. make sure that worked
-    //   password: process.env.PASSWORD,
     password: 'root',
     database: "companyRoster_db"
 });
@@ -47,16 +42,10 @@ function runSearch() {
                 "View all employees",
                 "View all employees by department",
                 "View all employees by role",
-                // BONUS "View all employees by manager",
                 "Add employee",
                 "Add department",
                 "Add role",
-                // BONUS "Remove employee",
-                // BONUS "Remove department",
-                // BONUS "Remove role",
                 "Update employee role",
-                //  BONUS "Update employee manager",
-                // BONUS "View total utilized budget of a department"
             ]
         })
         .then(function (answer) {
@@ -72,10 +61,6 @@ function runSearch() {
                 case "View all employees by role":
                     viewRole();
                     break;
-
-                    // BONUS case "View all employees by manager":
-                    //   rangeSearch();
-                    //   break;
 
                 case "Add employee":
                     addEmployee();
@@ -108,9 +93,7 @@ function viewEmployees() {
 }
 
 // might need to do an outer join for all tables
-// WAIT refer to activity 8 to view employees for each department
-// hmm but do they want us to do an inner join for the department and role tables? the only column they have in common is 
-// department id
+// hmm but do they want us to do an inner join for the department and role tables?
 
 function viewDepartment() {
     var query = "SELECT * FROM department";
@@ -121,7 +104,6 @@ function viewDepartment() {
     });
 }
 
-// same stuff as viewDepartment
 
 function viewRole() {
     var query = "SELECT * FROM role_";
@@ -150,16 +132,15 @@ function addEmployee() {
             {
                 name: "employeeRole",
                 type: "rawlist",
-                message: "What is the new employee's role?",
-                choices: [
-                    "Sales Lead",
-                    "Salesperson",
-                    "Lead Engineer",
-                    "Software Engineer",
-                    "Accountant",
-                    "Legal Team Lead",
-                    "Lawyer"
-                ]
+                // iterate through entire role table and generate a list of choices based on what's in there
+                choices: function () {
+                    var roleArray = [];
+                    for (var i = 0; i < results.length; i++) {
+                        roleArray.push(results[i].item_name);
+                    }
+                    return roleArray;
+                },
+                message: "What is the new employee's role?"
             },
         ])
         .then(function (answer) {
@@ -186,11 +167,10 @@ function addEmployee() {
 function addDepartment() {
     inquirer
         .prompt([{
-                name: "departmentName",
-                type: "input",
-                message: "What is the new department's name?"
-            },
-        ])
+            name: "departmentName",
+            type: "input",
+            message: "What is the new department's name?"
+        }, ])
         .then(function (answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
@@ -201,6 +181,8 @@ function addDepartment() {
                 function (err) {
                     if (err) throw err;
                     console.log("Your department was created successfully!");
+                    viewDepartment();
+                    console.log(console.table(result));
                     runSearch();
                 }
             );
@@ -223,13 +205,15 @@ function addRole() {
             {
                 name: "roleDepartment",
                 type: "rawlist",
-                message: "What is the new role's department?",
-                choices: [
-                    "Sales",
-                    "Legal",
-                    "Engineering",
-                    "Finance"
-                ]
+                // iterate through entire role table and generate a list of choices based on what's in there
+                choices: function () {
+                    var deptArray = [];
+                    for (var i = 0; i < results.length; i++) {
+                        deptArray.push(results[i].item_name);
+                    }
+                    return deptArray;
+                },
+                message: "What is the new role's department?"
             },
         ])
         .then(function (answer) {
@@ -245,6 +229,8 @@ function addRole() {
                 function (err) {
                     if (err) throw err;
                     console.log("Your role was created successfully!");
+                    viewRole();
+                    console.log(console.table(result));
                     runSearch();
                 }
             );
