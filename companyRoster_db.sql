@@ -26,7 +26,7 @@ CREATE TABLE employee (
   PRIMARY KEY (id)
 );
 
-INSERT INTO employees (id, first_name, last_name)
+INSERT INTO employee (id, first_name, last_name)
 VALUES (1, "Caroline", "Manson"), (2, "Cameron", "Pyle");
 INSERT INTO role_ (id, title, salary)
 VALUES (3, "Sales Lead", 1000000.0), (4, "Lead Engineer", 1000000.0);

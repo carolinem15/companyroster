@@ -45,7 +45,7 @@ function runSearch() {
             message: "What would you like to do?",
             choices: [
                 "View all employees",
-                "View all employees by departments",
+                "View all employees by department",
                 "View all employees by role",
                 // BONUS "View all employees by manager",
                 "Add employee",
@@ -96,9 +96,10 @@ function runSearch() {
         });
 }
 
+// for all of the view functions, why does it return the table and then "undefined"?
+
 function viewEmployees() {
     var query = "SELECT * FROM employee";
-    // what does { employee: answer.employee } do?
     connection.query(query, function (err, result) {
         if (err) log(err);
         console.log(console.table(result));
@@ -164,16 +165,18 @@ function addEmployee() {
         .then(function (answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
-                "INSERT INTO employees SET ?", {
+                "INSERT INTO employee SET ?", {
                     first_name: answer.firstName,
                     last_name: answer.lastName,
                     // do I need to create some reference to unique role ids here after the new employee has been assigned
                     // a role from the rawlist? OR, do I execute some sort of inner JOIN of tables based on the answer?
-                    role_id: answer.employeeRole
+                    // role_: answer.employeeRole
                 },
-                function (err) {
+                function (err, result) {
                     if (err) throw err;
                     console.log("Your employee was created successfully!");
+                    viewEmployees()
+                    console.log(console.table(result));
                     runSearch();
                 }
             );
@@ -216,7 +219,6 @@ function addRole() {
                 type: "number",
                 message: "What is the new role's salary?"
             },
-            // do I need to ask their role? probably
             {
                 name: "roleDepartment",
                 type: "rawlist",
@@ -248,48 +250,60 @@ function addRole() {
         });
 }
 
-function updateEmployeeRole(answer) {
-  connection.query("SELECT * FROM employees", function(err, results) {
-    if (err) throw err;
-    inquirer
-      .prompt([
-        {
-          name: "updateEmployeeRole",
-          type: "rawlist",
-          // iterate through entire employee table and generate a list of choices based on what's in there
-          choices: function() {
-            var employeeArray = [];
-            for (var i = 0; i < results.length; i++) {
-              employeeArray.push(results[i].item_name);
-            }
-            return employeeArray;
-            },
-            message: "Which employee's role would you like to update?"
-        },
-        // do I need to run a delete/update query here (or after the inquirer prompts)?
-        {
-            name: "newRole",
-            type: "rawlist",
-            choices: function() {
-            // iterate through entire role table and generate a list of choices based on what's in there
-            // should I name this choiceArray something different?
-                var roleArray = [];
-                for (var i = 0; i < results.length; i++) {
-                  roleArray.push(results[i].item_name);
-                }
-                return roleArray;
-            },
-            message: "What would you like their new role to be?"
-        },
-    ])
-    .then (function(answer) {
-        var chosenItem;
-        for (var i = 0; i < results.length; i++) {
-          if (results[i].item_name === answer.choice) {
-            chosenItem = results[i];
-          }
-        }
+// function updateEmployeeRole(answer) {
+//   connection.query("SELECT * FROM employees", function(err, results) {
+//     if (err) throw err;
+//     inquirer
+//       .prompt([
+//         {
+//           name: "updateEmployeeRole",
+//           type: "rawlist",
+//           // iterate through entire employee table and generate a list of choices based on what's in there
+//           choices: function() {
+//             var employeeArray = [];
+//             for (var i = 0; i < results.length; i++) {
+//               employeeArray.push(results[i].item_name);
+//             }
+//             return employeeArray;
+//             },
+//             message: "Which employee's role would you like to update?"
+//         },
+//         // do I need to run a delete/update query here (or after the inquirer prompts)?
+//         {
+//             name: "newRole",
+//             type: "rawlist",
+//             choices: function() {
+//             // iterate through entire role table and generate a list of choices based on what's in there
+//             // should I name this choiceArray something different?
+//                 var roleArray = [];
+//                 for (var i = 0; i < results.length; i++) {
+//                   roleArray.push(results[i].item_name);
+//                 }
+//                 return roleArray;
+//             },
+//             message: "What would you like their new role to be?"
+//         },
+//     ])
+//     .then (function(answer) {
+//         // this gets the information of the chosen items (???)
+//         var chosenItem;
+//         for (var i = 0; i < results.length; i++) {
+//           if (results[i].item_name === answer.choice) {
+//             chosenItem = results[i];
+//           }
+//         connection.query(
+//             "UPDATE auctions SET ? WHERE ?", [
+//                 {
+//                     id: chosenItem.id
+//                 }
+//             ],
+//             function(error) {
+//               if (error) throw err;
+//               console.log("Employee updated successfully!");
+//               runSearch();
+//             }
+//         }
 
-    }
-})
-}
+//     }
+// })
+// }
