@@ -15,21 +15,24 @@ CREATE TABLE department (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE role (
+CREATE TABLE role_ (
   id INTEGER NOT NULL AUTO_INCREMENT,
   title VARCHAR(30),
   -- how do i use decimal --
   salary DECIMAL(10),
-  department_id -- not sure how to do INT to hold reference to department role belongs to --
+  department_id INTEGER, -- not sure how to do INT to hold reference to department role belongs to --
   PRIMARY KEY (id)
 );
 
-CREATE TABLE favorite_movies (
+CREATE TABLE employee (
   id INTEGER NOT NULL AUTO_INCREMENT,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
-  -- Creates a boolean column called "five_times" that sets the default value to false if nothing is entered --
-  role_id -- not sure how to do INT to hold reference to role the employeee has --
-  manager_id -- not sure how to do INT to hold reference to manager employee has --
+  role_id INTEGER, -- not sure how to do INT to hold reference to role the employeee has --
+  manager_id INTEGER, -- not sure how to do INT to hold reference to manager employee has --
   PRIMARY KEY (id)
 );
+
+SELECT * FROM department;
+SELECT * FROM role_;
+SELECT * FROM employee;

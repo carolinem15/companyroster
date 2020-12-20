@@ -82,15 +82,15 @@ function runSearch() {
   function viewEmployees() {
     inquirer
       .prompt({
-        name: "artist",
+        name: "employee",
         type: "input",
-        message: "What artist would you like to search for?"
+        message: "What employee would you like to search for?"
       })
       .then(function(answer) {
-        var query = "SELECT position, song, year FROM top5000 WHERE ?";
-        connection.query(query, { artist: answer.artist }, function(err, res) {
+        var query = "SELECT id, first_name, last_name FROM employee WHERE ?";
+        connection.query(query, { employee: answer.employee }, function(err, res) {
           for (var i = 0; i < res.length; i++) {
-            console.log("Position: " + res[i].position + " || Song: " + res[i].song + " || Year: " + res[i].year);
+            console.log("id: " + res[i].id + " || first_name: " + res[i].first_name + " || last_name: " + res[i].last_name);
           }
           runSearch();
         });
@@ -98,22 +98,40 @@ function runSearch() {
   }
   
   function viewEmployeeDept() {
-    var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-    connection.query(query, function(err, res) {
-      for (var i = 0; i < res.length; i++) {
-        console.log(res[i].artist);
-      }
-      runSearch();
+    inquirer
+    .prompt({
+      name: "employeeDept",
+      type: "input",
+      message: "What department would you like to search for?"
+    })
+    .then(function(answer) {
+      var query = "SELECT id, name FROM department WHERE ?";
+      connection.query(query, { employeeDept: answer.employeeDept }, function(err, res) {
+        for (var i = 0; i < res.length; i++) {
+        // how do i include code for role id and manager id? see README
+          console.log("id: " + res[i].id + " || name: " + res[i].name);
+        }
+        runSearch();
+      });
     });
   }
 
   function viewEmployeeRole() {
-    var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-    connection.query(query, function(err, res) {
-      for (var i = 0; i < res.length; i++) {
-        console.log(res[i].artist);
-      }
-      runSearch();
+    inquirer
+    .prompt({
+      name: "employeeRole",
+      type: "input",
+      message: "What roles would you like to search for?"
+    })
+    .then(function(answer) {
+      var query = "SELECT id, title, salary FROM role_ WHERE ?";
+      connection.query(query, { employeeRole: answer.employeeRole }, function(err, res) {
+        for (var i = 0; i < res.length; i++) {
+            // how do i include code for department id? see README
+          console.log("id: " + res[i].id + " || title: " + res[i].title + " || salary: " + res[i].salary);
+        }
+        runSearch();
+      });
     });
   }
   
@@ -276,3 +294,12 @@ function addRole() {
 //       });
 //   }
   
+
+
+// var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
+//     connection.query(query, function(err, res) {
+//       for (var i = 0; i < res.length; i++) {
+//         console.log(res[i].artist);
+//       }
+//       runSearch();
+//     });
