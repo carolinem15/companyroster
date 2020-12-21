@@ -82,18 +82,20 @@ function runSearch() {
 }
 
 // for all of the view functions, why does it return the table and then "undefined"?
+// shouldn't a unique id (key) generate when i insert new employees?
 
 function viewEmployees() {
-    var query = "SELECT * FROM employee";
+    var query = `SELECT employee.first_name, employee.last_name, role_.title, role_.salary, department.name
+    FROM companyRoster_db.employee
+    INNER JOIN role_ ON employee.role_id=role_.role_id
+    INNER JOIN department ON role_.department_id=department.department_id;
+    `;
     connection.query(query, function (err, result) {
         if (err) log(err);
         console.log(console.table(result));
         runSearch();
     });
 }
-
-// might need to do an outer join for all tables
-// hmm but do they want us to do an inner join for the department and role tables?
 
 function viewDepartment() {
     var query = "SELECT * FROM department";
@@ -104,7 +106,6 @@ function viewDepartment() {
     });
 }
 
-
 function viewRole() {
     var query = "SELECT * FROM role_";
     connection.query(query, function (err, result) {
@@ -114,9 +115,33 @@ function viewRole() {
     });
 }
 
-// this is not actually how I would need to code it for the assignment. Ill need inquirer prompts asking the employee's
-// first name, last name, and maybe role? then figure out how to insert that into my query
+function getRole() {
+    var query = "SELECT title FROM role_";
+    connection.query(query, function (err, result) {
+        if (err) log(err);
+        console.log(console.table(result));
+        var roleArray = [];
+        for (var i = 0; i < result.length; i++) {
+            roleArray.push(result[i].item_name);
+        }
+        return roleArray;
+    });
+}
+
+
+// function getRoles() {
+//     var roles = []
+//     var roleArray = [];
+//     // var results = viewRole()
+//     // console.log(results)
+//     for (var i = 0; i < roles.length; i++) {
+//         roleArray.push(roles[i].item_name);
+//     }
+//     return roleArray;
+// }
+// getting errors with all of these because the result in the array is not defined
 function addEmployee() {
+getRole()
     inquirer
         .prompt([{
                 name: "firstName",
@@ -133,13 +158,7 @@ function addEmployee() {
                 name: "employeeRole",
                 type: "rawlist",
                 // iterate through entire role table and generate a list of choices based on what's in there
-                choices: function () {
-                    var roleArray = [];
-                    for (var i = 0; i < results.length; i++) {
-                        roleArray.push(results[i].item_name);
-                    }
-                    return roleArray;
-                },
+                choices: ,
                 message: "What is the new employee's role?"
             },
         ])
@@ -149,9 +168,7 @@ function addEmployee() {
                 "INSERT INTO employee SET ?", {
                     first_name: answer.firstName,
                     last_name: answer.lastName,
-                    // do I need to create some reference to unique role ids here after the new employee has been assigned
-                    // a role from the rawlist? OR, do I execute some sort of inner JOIN of tables based on the answer?
-                    // role_: answer.employeeRole
+                    role_id: answer.role_
                 },
                 function (err, result) {
                     if (err) throw err;
@@ -246,6 +263,9 @@ function addRole() {
 //           name: "updateEmployeeRole",
 //           type: "rawlist",
 //           // iterate through entire employee table and generate a list of choices based on what's in there
+// use add employee as reference
+// i could create another function to create that array
+// ex var roles=getRoleTitle()
 //           choices: function() {
 //             var employeeArray = [];
 //             for (var i = 0; i < results.length; i++) {
@@ -277,9 +297,9 @@ function addRole() {
 //         for (var i = 0; i < results.length; i++) {
 //           if (results[i].item_name === answer.choice) {
 //             chosenItem = results[i];
-//           }
+//           })
 //         connection.query(
-//             "UPDATE auctions SET ? WHERE ?", [
+//             "UPDATE employee SET ? WHERE ?", [
 //                 {
 //                     id: chosenItem.id
 //                 }
@@ -289,8 +309,5 @@ function addRole() {
 //               console.log("Employee updated successfully!");
 //               runSearch();
 //             }
-//         }
-
+//         })
 //     }
-// })
-// }
