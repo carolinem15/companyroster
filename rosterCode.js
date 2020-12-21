@@ -132,73 +132,73 @@ function getRole() {
 function getRole() {
     var query = 'SELECT title FROM role_';
     return new Promise(function (resolve, reject) {
-      connection.query(query, function (err, result) {
-        if (err) reject(err);
-        console.log(console.table(result));
-        var roleArray = [];
-        for (var i = 0; i < result.length; i++) {
-          roleArray.push(result[i].title);
-        }
-        resolve(roleArray);
-      });
+        connection.query(query, function (err, result) {
+            if (err) reject(err);
+            console.log(console.table(result));
+            var roleArray = [];
+            for (var i = 0; i < result.length; i++) {
+                roleArray.push(result[i].title);
+            }
+            resolve(roleArray);
+        });
     });
-  }
+}
 
 function addEmployee() {
-    getRole().then(function(roleArray) {
+    getRole().then(function (roleArray) {
         console.log(roleArray)
-    inquirer
-        .prompt([{
-                name: "firstName",
-                type: "input",
-                message: "What is the new employee's first name?"
-            },
-            {
-                name: "lastName",
-                type: "input",
-                message: "What is the new employee's last name?"
-            },
-            {
-                name: "employeeRole",
-                type: "rawlist",
-                // iterate through entire role table and generate a list of choices based on what's in there
-                choices: roleArray,
-                message: "What is the new employee's role?"
-            },
-        ])
-        .then(function (answer) {
-            // when finished prompting, insert a new item into the db with that info
-            connection.query(
-                "INSERT INTO employee SET ?", {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName,
-                    role_id: answer.role_
+        inquirer
+            .prompt([{
+                    name: "firstName",
+                    type: "input",
+                    message: "What is the new employee's first name?"
                 },
-                function (err, result) {
-                    if (err) throw err;
-                    console.log("Your employee was created successfully!");
-                    viewEmployees()
-                    console.log(console.table(result));
-                    runSearch();
-                }
-            );
-        });
-})
+                {
+                    name: "lastName",
+                    type: "input",
+                    message: "What is the new employee's last name?"
+                },
+                {
+                    name: "employeeRole",
+                    type: "rawlist",
+                    // iterate through entire role table and generate a list of choices based on what's in there
+                    choices: roleArray,
+                    message: "What is the new employee's role?"
+                },
+            ])
+            .then(function (answer) {
+                // when finished prompting, insert a new item into the db with that info
+                connection.query(
+                    "INSERT INTO employee SET ?", {
+                        first_name: answer.firstName,
+                        last_name: answer.lastName,
+                        role_id: answer.role_
+                    },
+                    function (err, result) {
+                        if (err) throw err;
+                        console.log("Your employee was created successfully!");
+                        viewEmployees()
+                        console.log(console.table(result));
+                        runSearch();
+                    }
+                );
+            });
+    })
 }
 // build department, then role
 function addDepartment() {
     inquirer
         .prompt([{
-            name: "departmentName",
-            type: "input",
-            message: "What is the new department's name?"
-        }, 
-        {
-            name: "departmentID",
-            type: "input",
-            message: "What is the new department's ID number?"
-        }
-    ])
+                name: "departmentName",
+                type: "input",
+                message: "What is the new department's name?"
+            },
+            {
+                name: "departmentID",
+                type: "input",
+                message: "What is the new department's ID number?"
+            }
+        ])
         .then(function (answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
@@ -221,114 +221,116 @@ function addDepartment() {
 function getDepartment() {
     var query = 'SELECT name FROM department';
     return new Promise(function (resolve, reject) {
-      connection.query(query, function (err, result) {
-        if (err) reject(err);
-        console.log(console.table(result));
-        var deptArray = [];
-        for (var i = 0; i < result.length; i++) {
-          deptArray.push(result[i].name);
-        }
-        resolve(deptArray);
-      });
-    });
-  }
-
-function addRole() {
-    getDepartment().then(function(deptArray) {
-        console.log(deptArray)
-    inquirer
-        .prompt([{
-                name: "roleTitle",
-                type: "input",
-                message: "What is the new role's title?"
-            },
-            {
-                name: "roleSalary",
-                type: "number",
-                message: "What is the new role's salary?"
-            },
-            // do a query before, get all the departments, and build choices as an array (where every object has a key (department) and a value(id))
-            {
-                name: "roleDepartment",
-                type: "rawlist",
-                // iterate through entire role table and generate a list of choices based on what's in there
-                choices: deptArray,
-                message: "What is the new role's department?"
-            },
-        ])
-        .then(function (answer) {
-            // when finished prompting, insert a new item into the db with that info
-            connection.query(
-                "INSERT INTO role_ SET ?", {
-                    title: answer.roleTitle,
-                    salary: answer.roleSalary
-                },
-                function (err) {
-                    if (err) throw err;
-                    console.log("Your role was created successfully!");
-                    viewRole();
-                    console.log(console.table(result));
-                    runSearch();
-                }
-            );
+        connection.query(query, function (err, result) {
+            if (err) reject(err);
+            console.log(console.table(result));
+            var deptArray = [];
+            for (var i = 0; i < result.length; i++) {
+                deptArray.push(result[i].name);
+            }
+            resolve(deptArray);
         });
     });
 }
 
-// function updateEmployeeRole(answer) {
-//   connection.query("SELECT * FROM employees", function(err, results) {
-//     if (err) throw err;
-//     inquirer
-//       .prompt([
-//         {
-//           name: "updateEmployeeRole",
-//           type: "rawlist",
-//           // iterate through entire employee table and generate a list of choices based on what's in there
-// use add employee as reference
-// i could create another function to create that array
-// ex var roles=getRoleTitle()
-//           choices: function() {
-//             var employeeArray = [];
-//             for (var i = 0; i < results.length; i++) {
-//               employeeArray.push(results[i].item_name);
-//             }
-//             return employeeArray;
-//             },
-//             message: "Which employee's role would you like to update?"
-//         },
-//         // do I need to run a delete/update query here (or after the inquirer prompts)?
-//         {
-//             name: "newRole",
-//             type: "rawlist",
-//             choices: function() {
-//             // iterate through entire role table and generate a list of choices based on what's in there
-//             // should I name this choiceArray something different?
-//                 var roleArray = [];
-//                 for (var i = 0; i < results.length; i++) {
-//                   roleArray.push(results[i].item_name);
-//                 }
-//                 return roleArray;
-//             },
-//             message: "What would you like their new role to be?"
-//         },
-//     ])
-//     .then (function(answer) {
-//         // this gets the information of the chosen items (???)
-//         var chosenItem;
-//         for (var i = 0; i < results.length; i++) {
-//           if (results[i].item_name === answer.choice) {
-//             chosenItem = results[i];
-//           })
-//         connection.query(
-//             "UPDATE employee SET ? WHERE ?", [
-//                 {
-//                     id: chosenItem.id
-//                 }
-//             ],
-//             function(error) {
-//               if (error) throw err;
-//               console.log("Employee updated successfully!");
-//               runSearch();
-//             }
-//         })
-//     }
+function addRole() {
+    getDepartment().then(function (deptArray) {
+        console.log(deptArray)
+        inquirer
+            .prompt([{
+                    name: "roleTitle",
+                    type: "input",
+                    message: "What is the new role's title?"
+                },
+                {
+                    name: "roleSalary",
+                    type: "number",
+                    message: "What is the new role's salary?"
+                },
+                // do a query before, get all the departments, and build choices as an array (where every object has a key (department) and a value(id))
+                {
+                    name: "roleDepartment",
+                    type: "rawlist",
+                    // iterate through entire role table and generate a list of choices based on what's in there
+                    choices: deptArray,
+                    message: "What is the new role's department?"
+                },
+            ])
+            .then(function (answer) {
+                // when finished prompting, insert a new item into the db with that info
+                connection.query(
+                    "INSERT INTO role_ SET ?", {
+                        title: answer.roleTitle,
+                        salary: answer.roleSalary
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Your role was created successfully!");
+                        viewRole();
+                        console.log(console.table(result));
+                        runSearch();
+                    }
+                );
+            });
+    });
+}
+
+function getEmployees() {
+    var query = 'SELECT first_name FROM employees';
+    return new Promise(function (resolve, reject) {
+        connection.query(query, function (err, result) {
+            if (err) reject(err);
+            console.log(console.table(result));
+            var empArray = [];
+            for (var i = 0; i < result.length; i++) {
+                empArray.push(result[i].first_name);
+            }
+            resolve(empArray);
+        });
+    });
+}
+
+function updateEmployeeRole() {
+    getEmployees().then(function (empArray) {
+                console.log(empArray)
+                connection.query("SELECT * FROM employees", function (err, results) {
+                    if (err) throw err;
+                    inquirer
+                        .prompt([{
+                                name: "updateEmployeeRole",
+                                type: "rawlist",
+                                // iterate through entire employee table and generate a list of choices based on what's in there
+                                // use add employee as reference
+                                // i could create another function to create that array
+                                // ex var roles=getRoleTitle()
+                                choices: empArray,
+                                message: "Which employee's role would you like to update?"
+                            },
+                            // do I need to run a delete/update query here (or after the inquirer prompts)?
+                            {
+                                name: "newRole",
+                                type: "rawlist",
+                                choices: roleArray,
+                                message: "What would you like their new role to be?"
+                            },
+                        ])
+                        .then(function (answer) {
+                                // this gets the information of the chosen items (???)
+                                // var chosenItem;
+                                // for (var i = 0; i < results.length; i++) {
+                                //     if (results[i].role === answer.choice) {
+                                //         chosenItem = results[i];
+                                //     })
+                                connection.query(
+                                    "UPDATE employee SET ? WHERE ?", [{
+                                        role: answer.newRole
+                                    }],
+                                    function (error) {
+                                        if (error) throw err;
+                                        console.log("Employee updated successfully!");
+                                        runSearch();
+                                    })
+                                })
+                        })
+                })
+            }
