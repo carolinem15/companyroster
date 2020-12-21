@@ -81,9 +81,6 @@ function runSearch() {
         });
 }
 
-// for all of the view functions, why does it return the table and then "undefined"?
-// shouldn't a unique id (key) generate when i insert new employees?
-
 function viewEmployees() {
     var query = `SELECT employee.first_name, employee.last_name, role_.title, role_.salary, department.name
     FROM companyRoster_db.employee
@@ -247,7 +244,6 @@ function addRole() {
                     type: "number",
                     message: "What is the new role's salary?"
                 },
-                // do a query before, get all the departments, and build choices as an array (where every object has a key (department) and a value(id))
                 {
                     name: "roleDepartment",
                     type: "rawlist",
@@ -276,7 +272,7 @@ function addRole() {
 }
 
 function getEmployees() {
-    var query = 'SELECT first_name FROM employees';
+    var query = 'SELECT first_name FROM employee';
     return new Promise(function (resolve, reject) {
         connection.query(query, function (err, result) {
             if (err) reject(err);
@@ -293,7 +289,7 @@ function getEmployees() {
 function updateEmployeeRole() {
     getEmployees().then(function (empArray) {
                 console.log(empArray)
-                connection.query("SELECT * FROM employees", function (err, results) {
+                connection.query("SELECT * FROM employee", function (err, results) {
                     if (err) throw err;
                     inquirer
                         .prompt([{
@@ -306,24 +302,16 @@ function updateEmployeeRole() {
                                 choices: empArray,
                                 message: "Which employee's role would you like to update?"
                             },
-                            // do I need to run a delete/update query here (or after the inquirer prompts)?
                             {
                                 name: "newRole",
-                                type: "rawlist",
-                                choices: roleArray,
+                                type: "input",
                                 message: "What would you like their new role to be?"
                             },
                         ])
                         .then(function (answer) {
-                                // this gets the information of the chosen items (???)
-                                // var chosenItem;
-                                // for (var i = 0; i < results.length; i++) {
-                                //     if (results[i].role === answer.choice) {
-                                //         chosenItem = results[i];
-                                //     })
                                 connection.query(
-                                    "UPDATE employee SET ? WHERE ?", [{
-                                        role: answer.newRole
+                                    "UPDATE role_ SET ? WHERE ?", [{
+                                        title: answer.newRole
                                     }],
                                     function (error) {
                                         if (error) throw err;
