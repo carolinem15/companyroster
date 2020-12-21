@@ -128,20 +128,25 @@ function getRole() {
     });
 }
 
+// created a new promise to execute!! thank you to askBCS for teaching me about the helpfulness of promises!
+function getRole() {
+    var query = 'SELECT title FROM role_';
+    return new Promise(function (resolve, reject) {
+      connection.query(query, function (err, result) {
+        if (err) reject(err);
+        console.log(console.table(result));
+        var roleArray = [];
+        for (var i = 0; i < result.length; i++) {
+          roleArray.push(result[i].title);
+        }
+        resolve(roleArray);
+      });
+    });
+  }
 
-// function getRoles() {
-//     var roles = []
-//     var roleArray = [];
-//     // var results = viewRole()
-//     // console.log(results)
-//     for (var i = 0; i < roles.length; i++) {
-//         roleArray.push(roles[i].item_name);
-//     }
-//     return roleArray;
-// }
-// getting errors with all of these because the result in the array is not defined
 function addEmployee() {
-getRole()
+    getRole().then(function(roleArray) {
+        console.log(roleArray)
     inquirer
         .prompt([{
                 name: "firstName",
@@ -153,12 +158,11 @@ getRole()
                 type: "input",
                 message: "What is the new employee's last name?"
             },
-            // do I need to ask their role? probably
             {
                 name: "employeeRole",
                 type: "rawlist",
                 // iterate through entire role table and generate a list of choices based on what's in there
-                choices: ,
+                choices: roleArray,
                 message: "What is the new employee's role?"
             },
         ])
@@ -179,6 +183,7 @@ getRole()
                 }
             );
         });
+})
 }
 // build department, then role
 function addDepartment() {
@@ -187,13 +192,19 @@ function addDepartment() {
             name: "departmentName",
             type: "input",
             message: "What is the new department's name?"
-        }, ])
+        }, 
+        {
+            name: "departmentID",
+            type: "input",
+            message: "What is the new department's ID number?"
+        }
+    ])
         .then(function (answer) {
             // when finished prompting, insert a new item into the db with that info
             connection.query(
                 "INSERT INTO department SET ?", {
                     name: answer.departmentName,
-                    // then I THINK it just assigns the department a unique id automatically
+                    department_id: answer.departmentID
                 },
                 function (err) {
                     if (err) throw err;
@@ -206,7 +217,25 @@ function addDepartment() {
         });
 }
 
+// created a new promise to execute!! thank you to askBCS for teaching me about the helpfulness of promises!
+function getDepartment() {
+    var query = 'SELECT name FROM department';
+    return new Promise(function (resolve, reject) {
+      connection.query(query, function (err, result) {
+        if (err) reject(err);
+        console.log(console.table(result));
+        var deptArray = [];
+        for (var i = 0; i < result.length; i++) {
+          deptArray.push(result[i].name);
+        }
+        resolve(deptArray);
+      });
+    });
+  }
+
 function addRole() {
+    getDepartment().then(function(deptArray) {
+        console.log(deptArray)
     inquirer
         .prompt([{
                 name: "roleTitle",
@@ -223,13 +252,7 @@ function addRole() {
                 name: "roleDepartment",
                 type: "rawlist",
                 // iterate through entire role table and generate a list of choices based on what's in there
-                choices: function () {
-                    var deptArray = [];
-                    for (var i = 0; i < results.length; i++) {
-                        deptArray.push(results[i].item_name);
-                    }
-                    return deptArray;
-                },
+                choices: deptArray,
                 message: "What is the new role's department?"
             },
         ])
@@ -238,10 +261,7 @@ function addRole() {
             connection.query(
                 "INSERT INTO role_ SET ?", {
                     title: answer.roleTitle,
-                    salary: answer.roleSalary,
-                    // do I need to create some reference to unique role ids here after the new employee has been assigned
-                    // a role from the rawlist? OR, do I execute some sort of inner JOIN of tables based on the answer?
-                    department_id: answer.roleDepartment
+                    salary: answer.roleSalary
                 },
                 function (err) {
                     if (err) throw err;
@@ -252,6 +272,7 @@ function addRole() {
                 }
             );
         });
+    });
 }
 
 // function updateEmployeeRole(answer) {
