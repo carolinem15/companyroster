@@ -203,7 +203,7 @@ function addDepartment() {
                     name: answer.departmentName,
                     department_id: answer.departmentID
                 },
-                function (err) {
+                function (err, result) {
                     if (err) throw err;
                     console.log("Your department was created successfully!");
                     viewDepartment();
@@ -259,7 +259,7 @@ function addRole() {
                         title: answer.roleTitle,
                         salary: answer.roleSalary
                     },
-                    function (err) {
+                    function (err, result) {
                         if (err) throw err;
                         console.log("Your role was created successfully!");
                         viewRole();
@@ -310,11 +310,11 @@ function updateEmployeeRole() {
                         ])
                         .then(function (answer) {
                                 connection.query(
-                                    "UPDATE role_ SET ? WHERE ?", [{
+                                    "UPDATE role_ SET ?", [{
                                         title: answer.newRole
                                     }],
-                                    function (error) {
-                                        if (error) throw err;
+                                    function (err) {
+                                        if (err) throw err;
                                         console.log("Employee updated successfully!");
                                         runSearch();
                                     })
